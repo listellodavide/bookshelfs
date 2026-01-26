@@ -1,0 +1,21 @@
+server:
+  port: 8087
+spring:
+  application:
+    name: books-resouce-server
+  main:
+    web-application-type: reactive
+  docker:
+   compose:
+    enabled: true
+    lifecycle-management: start_only
+    start:
+     command: up
+
+  r2dbc:
+    username: books
+    password: books
+    url: r2dbc:postgresql://localhost:5433/books
+  liquibase:
+    enabled: true
+    change-log: classpath:db-migration-postgres/db.changelog-master.yaml

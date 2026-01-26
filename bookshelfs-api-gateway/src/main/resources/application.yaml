@@ -1,0 +1,16 @@
+server:
+  port: 9016
+spring:
+  application:
+    name: edge-gateway
+
+  cloud:
+    gateway:
+      routes:
+        - id: book-service
+          uri: ${BOOK_SERVICE_URL:http://localhost:8090} }
+          predicates:
+            - Path=/books/**
+          filters:
+            - AddRequestHeader=X-Tenant,acme
+            - AddResponseHeader=X-Genre

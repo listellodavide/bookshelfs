@@ -1,0 +1,6 @@
+databaseChangeLog:
+  - include:
+      file: db-migration-postgres/changes/V1.1__schema.sql
+  - include:
+      file: db-migration-postgres/changes/V1.2__data.sql
+      
