@@ -5,6 +5,26 @@ spring:
     name: kafka-producer-bookstore
   main:
     web-application-type: reactive
+  cloud:
+    function:
+      definition: sensorEventProducer # Registers the function
+    stream:
+      bindings:
+        sensorEventProducer-out-0:
+          destination: sensor_event_topic # The Kafka topic
+          producer:
+            poller:
+              fixed-delay: 5000 # Sends a message every 5 seconds
+    kafka:
+      binder:
+        configuration:
+          schema.registry.url: http://localhost:8081
+
+      bindings:
+        sensorEventProducer-out-0:
+          producer:
+            configuration:
+              value.serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
 
 kafka:
   bootstrap-servers: localhost:9092

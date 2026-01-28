@@ -1,4 +1,4 @@
-package com.adiwave.kafka_producer_bookstore;
+package com.adiwave.books;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

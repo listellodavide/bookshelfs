@@ -226,7 +226,7 @@ services:
       - broker
       - schema-registry
     ports:
-      - 8082:8082
+      - "8082:8082"
     hostname: rest-proxy
     container_name: rest-proxy
     environment:
@@ -249,7 +249,7 @@ services:
     hostname: flink-jobmanager
     container_name: flink-jobmanager
     ports:
-      - 9081:9081
+      - "9081:9081"
     command: jobmanager
     environment:
       - |
@@ -270,6 +270,40 @@ services:
         jobmanager.rpc.address: flink-jobmanager
         taskmanager.numberOfTaskSlots: 10
 
+  opensearch:
+    image: opensearchproject/opensearch:2.12.0
+    container_name: opensearch
+    environment:
+      - discovery.type=single-node
+      - plugins.security.disabled=true
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=admin123!ChangeMe
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+  # newer version, they don't have connectors for 'opensearch' and they will crash
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.104.0
+    container_name: otel-collector
+    volumes:
+      - ./vol/config/otel-collector.yml:/etc/otelcol/config.yaml
+    command: [ "--config=/etc/otelcol/config.yaml" ]
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "13133:13133" # health check
+      - "8888:8888"   # collector metrics
+    depends_on:
+      - opensearch
+
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2.12.0
+    container_name: opensearch-dashboards
+    environment:
+      - OPENSEARCH_HOSTS=["http://opensearch:9200"]
+    ports:
+      - "5601:5601"
+    depends_on:
+      - opensearch
 
 volumes:
   prometheus_data:

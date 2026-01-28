@@ -2,6 +2,7 @@ plugins {
 	java
 	id("org.springframework.boot") version "4.0.2"
 	id("io.spring.dependency-management") version "1.1.7"
+	id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1"
 }
 
 group = "com.adiwave"
@@ -27,7 +28,9 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	implementation("org.springframework.boot:spring-boot-starter-reactor-netty")
 
+	implementation("org.springframework.boot:spring-boot-starter")
 	implementation("org.springframework.cloud:spring-cloud-stream")
+	implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka")
 	implementation("io.confluent:kafka-avro-serializer:7.8.0")
 	implementation("io.confluent:kafka-schema-registry-client:7.8.0")
 	implementation("org.apache.avro:avro:1.11.3")

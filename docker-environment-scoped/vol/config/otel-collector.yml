@@ -1,0 +1,30 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+
+exporters:
+  opensearch:
+    http:
+      endpoint: "http://opensearch:9200"
+      tls:
+        insecure: true
+      # This is the most likely spot for index in v0.104.0
+      index: "otel-logs"
+
+extensions:
+  health_check:
+
+service:
+  extensions: [health_check]
+  pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [opensearch]
