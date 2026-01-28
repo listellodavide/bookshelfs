@@ -1,0 +1,53 @@
+server:
+  port: 8084
+spring:
+  application:
+    name: kafka-producer-bookstore
+  main:
+    web-application-type: reactive
+  cloud:
+    function:
+      definition: sensorEventProducer # Registers the function
+    stream:
+      bindings:
+        sensorEventProducer-out-0:
+          destination: sensor_event_topic # The Kafka topic
+          producer:
+            poller:
+              fixed-delay: 5000 # Sends a message every 5 seconds
+    kafka:
+      binder:
+        configuration:
+          schema.registry.url: http://localhost:8081
+
+      bindings:
+        sensorEventProducer-out-0:
+          producer:
+            configuration:
+              value.serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+
+kafka:
+  bootstrap-servers: localhost:9092
+  producer:
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+    properties:
+      schema.registry.url: http://localhost:8081
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0 # Capture everything for now
+  endpoints:
+    web:
+      exposure:
+        include: health, info, otlp # Useful for debugging
+  opentelemetry:
+    logging:
+      export:
+        otlp:
+          endpoint: "http://localhost:4318/v1/logs"
+    tracing:
+      export:
+        otlp:
+          endpoint: "http://localhost:4318/v1/traces"

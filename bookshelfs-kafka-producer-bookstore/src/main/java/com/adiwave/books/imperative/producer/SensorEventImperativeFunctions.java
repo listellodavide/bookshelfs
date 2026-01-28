@@ -3,12 +3,14 @@ package com.adiwave.books.imperative.producer;
 import com.adiwave.books.message.SensorEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.time.Instant;
 import java.util.function.Supplier;
 import java.util.random.RandomGenerator;
 
 @Configuration
+@Profile("!reactive")
 public class SensorEventImperativeFunctions {
 
     @Bean

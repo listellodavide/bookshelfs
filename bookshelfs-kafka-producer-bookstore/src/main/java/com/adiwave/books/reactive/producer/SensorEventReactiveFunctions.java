@@ -1,6 +1,9 @@
 package com.adiwave.books.reactive.producer;
 
 import com.adiwave.books.message.SensorEvent;
+import com.adiwave.books.reactive.DlqEventUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cloud.function.context.PollableBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,11 +20,16 @@ import java.util.random.RandomGenerator;
 @Profile("reactive")
 public class SensorEventReactiveFunctions {
 
-    private static final String DLQ_CHANNEL = "sensorEventDlqProducer-out-0";
+    private static final Logger log = LoggerFactory.getLogger(SensorEventReactiveFunctions.class);
 
-    private final SensorEventDao sensorEventDao;
+    private static final String DLQ_CHANNEL = "sensorEventDlqProducer-out-0";
+    
 
     private final DlqEventUtil dlqEventUtil;
+
+    public SensorEventReactiveFunctions(DlqEventUtil dlqEventUtil) {
+        this.dlqEventUtil = dlqEventUtil;
+    }
 
     // to manage DLQ and retry, you can wrap the flow in a flatMap
     @Bean
@@ -32,35 +40,25 @@ public class SensorEventReactiveFunctions {
     }
 
     private Mono<Void> consumeMessage(SensorEvent message) {
-        return logEventReceived().andThen(saveInDBEventReceived()).apply(Flux.just(message))
+        return logEventReceived().apply(Flux.just(message))
+                .then()
                 .retry(2)
-                .onErrorResume(throwable -> dlqEventUtil.handleDLQ(message, throwable, DLQ_CHANNEL));
+                .onErrorResume(throwable -> dlqEventUtil.handleDlq(message, throwable, DLQ_CHANNEL));
     }
 
-
-    //    @Bean
+    
     public Function<Flux<SensorEvent>, Flux<SensorEvent>> logEventReceived() {
         return fluxEvent -> fluxEvent
                 .doOnNext(sensorEvent -> log.info("Message received: {}", sensorEvent));
     }
-
-    // for the reactive consumers, you can use Consumer<Flux<..>> or Function<Flux<..>, Mono<Void>>
-//    @Bean
-//    public Consumer<Flux<SensorEvent>> logEventReceived() {
-//        return fluxEvent -> {
-//            fluxEvent
-//                    .doOnNext(sensorEvent -> log.info("Message received: {}", sensorEvent))
-//                    .subscribe();
-//
-//        };
-//    }
-
-    //    @Bean
-    public Function<Flux<SensorEvent>, Mono<Void>> saveInDBEventReceived() {
-        return fluxEvent -> fluxEvent
-                .flatMap(sensorEvent -> sensorEventDao.save(Mono.just(sensorEvent)))
-                .then();
-    }
+    
+    // code example to also save a record in local DB table:
+    // 1.Save a copy to local db
+    // public Function<Flux<SensorEvent>, Mono<Void>> saveInDBEventReceived() {
+    //    return fluxEvent -> fluxEvent
+    //            .flatMap(sensorEvent -> sensorEventDao.save(Mono.just(sensorEvent)))
+    //            .then();
+    //}
 
 
     @PollableBean
