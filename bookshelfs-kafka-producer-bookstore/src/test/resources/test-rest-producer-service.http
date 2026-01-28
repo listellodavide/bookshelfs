@@ -1,11 +1,21 @@
 ### POST SensorEvent to REST controller
-POST http://localhost:8084/sensor-event
+POST http://localhost:8084/api/v0/sensor-event
 Content-Type: application/json
 
 {
-  "sensorId": "sensor-175",
-  "timestamp": "2026-01-28T17:00:00Z",
-  "value": 97.32
+  "sensorId": "3",
+  "timestampEvent": "2026-01-28T17:00:00Z",
+  "degree": 97.32
 }
 
 ### Expected response: 200 OK with boolean body (true/false)
+
+### POST Asyncronous
+POST http://localhost:8084/api/v1/sensor-event
+Content-Type: application/json
+
+{
+  "sensorId": "3",
+  "timestampEvent": "2026-01-28T17:00:00Z",
+  "degree": 97.32
+}
