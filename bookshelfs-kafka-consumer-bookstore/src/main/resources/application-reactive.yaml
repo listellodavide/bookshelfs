@@ -1,0 +1,43 @@
+server:
+  port: 8085
+spring:
+  application:
+    name: kafka-consumer-bookstore
+  main:
+    web-application-type: reactive
+  function:
+    definition: sensorConsumer
+    stream:
+      kafka: #remove spring.clod.stream.kafka props to use RabbitMQ
+        binder:
+          brokers: localhost:9092
+          #          kafka-properties: #global props
+          #            boootstrap.server: localhost:9092
+          consumerProperties: #consumer props
+            max.poll.records: 250
+      #          producerProperties:
+      #            boootstrap.server: localhost:9092
+      bindings:
+        sensorEventDlqConsumer-in-0: #a consumer
+          destination: sensor_event_topic
+          group: ${spring.application.name}
+        sensorEventDlqConsumer-dlq-0: #DLQ consumer
+          destination: sensor_event_topic
+          producer:
+            poller: #manage polling for specific supplier producer
+              fixed-delay: 5000
+              initial-delay: 1000
+        sensorEventAnotherProducer-out-0: #another producer
+          destination: sensor_event_topic
+        sensorEventDlqProducer-dlq-0: #DLQ producer
+          destination: sensor_event_topic_dlq
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+      group-id: my-group
+      properties:
+        schema.registry.url: http://localhost:8081
+        # Set to true if you use generated Avro classes (recommended)
+        specific.avro.reader: true

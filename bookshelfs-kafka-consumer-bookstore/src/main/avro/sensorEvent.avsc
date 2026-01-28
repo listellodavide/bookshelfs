@@ -1,0 +1,16 @@
+{
+  "type": "record",
+  "name": "SensorEvent",
+  "namespace": "com.adiwave.books.avro",
+  "fields": [
+    { "name": "sensorId", "type": "string" },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    },
+    { "name": "value", "type": "double" }
+  ]
+}
