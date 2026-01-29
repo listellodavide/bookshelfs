@@ -1,6 +1,6 @@
 package com.adiwave.books.imperative.controller;
 
-import com.adiwave.books.message.SensorEvent;
+import com.adiwave.books.avro.SensorEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Component;

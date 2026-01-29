@@ -19,18 +19,22 @@ spring:
       #            boootstrap.server: localhost:9092
       bindings:
         sensorEventDlqConsumer-in-0: #a consumer
+          useNativeEncoding: true
           destination: sensor_event_topic
           group: ${spring.application.name}
         sensorEventDlqConsumer-dlq-0: #DLQ consumer
           destination: sensor_event_topic
+          useNativeEncoding: true
           producer:
             poller: #manage polling for specific supplier producer
               fixed-delay: 5000
               initial-delay: 1000
         sensorEventAnotherProducer-out-0: #another producer
           destination: sensor_event_topic
+          useNativeEncoding: true
         sensorEventDlqProducer-dlq-0: #DLQ producer
           destination: sensor_event_topic_dlq
+          useNativeEncoding: true
   kafka:
     bootstrap-servers: localhost:9092
     consumer:

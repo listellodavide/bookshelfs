@@ -3,14 +3,19 @@
   "name": "SensorEvent",
   "namespace": "com.adiwave.books.avro",
   "fields": [
-    { "name": "sensorId", "type": "string" },
+    { "name": "sensorId",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      }
+    },
     {
-      "name": "timestamp",
+      "name": "timestampEvent",
       "type": {
         "type": "long",
         "logicalType": "timestamp-millis"
       }
     },
-    { "name": "value", "type": "double" }
+    { "name": "degree", "type": "double" }
   ]
 }

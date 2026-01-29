@@ -1,10 +1,8 @@
 package com.adiwave.books.reactive;
 
-import com.adiwave.books.message.SensorEvent;
+import com.adiwave.books.dto.SensorEventDto;
 import com.adiwave.books.reactive.handler.SensorEventHandler;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -37,7 +35,7 @@ public class RouterConfig {
                             operationId = "pushSensorEventMessage",
                             tags = "SensorEvents",
                             requestBody = @RequestBody(
-                                    content = @Content(schema = @Schema(implementation = SensorEvent.class))
+                                    content = @Content(schema = @Schema(implementation = SensorEventDto.class))
                             ),
                             responses = @ApiResponse(
                                     responseCode = "201",

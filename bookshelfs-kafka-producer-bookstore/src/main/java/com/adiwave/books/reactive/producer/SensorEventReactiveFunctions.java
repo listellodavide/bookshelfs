@@ -1,6 +1,6 @@
 package com.adiwave.books.reactive.producer;
 
-import com.adiwave.books.message.SensorEvent;
+import com.adiwave.books.dto.SensorEventDto;
 import com.adiwave.books.reactive.DlqEventUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.random.RandomGenerator;
@@ -33,13 +34,13 @@ public class SensorEventReactiveFunctions {
 
     // to manage DLQ and retry, you can wrap the flow in a flatMap
     @Bean
-    public Function<Flux<SensorEvent>, Mono<Void>> logEventReceivedSaveInDBEventReceived() {
+    public Function<Flux<SensorEventDto>, Mono<Void>> logEventReceivedSaveInDBEventReceived() {
         return fluxEvent -> fluxEvent
                 .flatMap(this::consumeMessage)
                 .then();
     }
 
-    private Mono<Void> consumeMessage(SensorEvent message) {
+    private Mono<Void> consumeMessage(SensorEventDto message) {
         return logEventReceived().apply(Flux.just(message))
                 .then()
                 .retry(2)
@@ -47,14 +48,14 @@ public class SensorEventReactiveFunctions {
     }
 
     
-    public Function<Flux<SensorEvent>, Flux<SensorEvent>> logEventReceived() {
+    public Function<Flux<SensorEventDto>, Flux<SensorEventDto>> logEventReceived() {
         return fluxEvent -> fluxEvent
                 .doOnNext(sensorEvent -> log.info("Message received: {}", sensorEvent));
     }
     
     // code example to also save a record in local DB table:
     // 1.Save a copy to local db
-    // public Function<Flux<SensorEvent>, Mono<Void>> saveInDBEventReceived() {
+    // public Function<Flux<SensorEventDto>, Mono<Void>> saveInDBEventReceived() {
     //    return fluxEvent -> fluxEvent
     //            .flatMap(sensorEvent -> sensorEventDao.save(Mono.just(sensorEvent)))
     //            .then();
@@ -62,9 +63,9 @@ public class SensorEventReactiveFunctions {
 
 
     @PollableBean
-    public Supplier<Flux<SensorEvent>> sensorEventProducer() {
+    public Supplier<Flux<SensorEventDto>> sensorEventProducer() {
         final RandomGenerator random = RandomGenerator.getDefault();
-        return () -> Flux.just(new SensorEvent("2", Instant.now(), random.nextDouble(1.0, 31.0)));
+        return () -> Flux.just(new SensorEventDto(UUID.randomUUID(), Instant.now(), random.nextDouble(1.0, 31.0)));
     }
 
 }
